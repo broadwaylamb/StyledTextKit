@@ -82,3 +82,5 @@ Resources/*.xcconfig
 
 # FBSnapshotTestCase Failure Diffs
 FailureDiffs/
+
+.swiftpm
