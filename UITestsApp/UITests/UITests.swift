@@ -12,7 +12,7 @@ class UITests: XCTestCase {
     func test_tapLink() {
         let app = XCUIApplication()
         let textviewElement = app.otherElements["textView"]
-        let statelabelElement = app.otherElements["stateLabel"]
+        let statelabelElement = app.staticTexts["stateLabel"]
 
         textviewElement.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.1))
             .tap()
