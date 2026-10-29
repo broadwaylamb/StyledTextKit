@@ -10,9 +10,9 @@ import UIKit
 import StyledTextKit
 import SafariServices
 
-extension NSAttributedStringKey {
+extension NSAttributedString.Key {
     
-    public static let tapable = NSAttributedStringKey(rawValue: "tapable")
+    public static let tapable = NSAttributedString.Key(rawValue: "tapable")
     
 }
 
@@ -52,7 +52,9 @@ class BackgroundRenderingViewController: UIViewController {
         title = "Background Rendering"
         
         containter.addSubview(styledTextView)
-        
+
+        let scale = traitCollection.displayScale
+
         DispatchQueue.global().async {
             let builder = StyledTextBuilder(text: "So ")
                 .save()
@@ -67,7 +69,7 @@ class BackgroundRenderingViewController: UIViewController {
                 .add(style: self.styleTapable)
                 .add(text: "Tap me to StyledTextKit GitHub", attributes: [.tapable: #selector(self.tapAction), .highlight: NSObject()])
             
-            let renderer = StyledTextRenderer(string: builder.build(), contentSizeCategory: self.contentSizeCategory)
+            let renderer = StyledTextRenderer(string: builder.build(), contentSizeCategory: self.contentSizeCategory, scale: scale)
                 .warm(width: 240) // warms the size cache
             
             DispatchQueue.main.async {

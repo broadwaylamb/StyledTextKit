@@ -45,6 +45,8 @@ class FastScrollingTableViewController: UITableViewController {
         let contentSizeCategory = UIApplication.shared.preferredContentSizeCategory
         let width = tableView.contentInsetWidth
 
+        let scale = traitCollection.displayScale
+
         DispatchQueue.global().async {
 
             var tmp = [StyledTextRenderer]()
@@ -56,13 +58,14 @@ class FastScrollingTableViewController: UITableViewController {
                 let renderer = StyledTextRenderer(
                     string: builder.build(),
                     contentSizeCategory: contentSizeCategory,
-                    inset: UIEdgeInsets(top: 15, left: 15, bottom: 15, right: 15)
+                    inset: UIEdgeInsets(top: 15, left: 15, bottom: 15, right: 15),
+                    scale: scale
                     )
                     .warm(width: width) // calling warm pre-sizes the text for the given width
                 tmp.append(renderer)
             }
 
-            DispatchQueue.main.async { [weak self] in
+            DispatchQueue.main.async { [tmp, weak self] in
                 self?.data = tmp
                 self?.tableView.reloadData()
             }
