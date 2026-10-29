@@ -84,12 +84,12 @@ class BackgroundRenderingViewController: UIViewController {
 
 extension BackgroundRenderingViewController: StyledTextViewDelegate {
     
-    func didTap(view: StyledTextView, attributes: [NSAttributedStringKey : Any], point: CGPoint) {
+    func didTap(view: StyledTextView, attributes: NSAttributedStringAttributesType, point: CGPoint) {
         guard let action = attributes[.tapable] as? Selector else { return }
 
         perform(action)
     }
     
-    func didLongPress(view: StyledTextView, attributes: [NSAttributedStringKey : Any], point: CGPoint) {}
-    
+    func didLongPress(view: StyledTextView, attributes: NSAttributedStringAttributesType, point: CGPoint) {}
+
 }
