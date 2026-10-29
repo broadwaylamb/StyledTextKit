@@ -7,7 +7,7 @@
 //
 
 import XCTest
-import FBSnapshotTestCase
+import iOSSnapshotTestCase
 @testable import StyledTextKit
 
 extension UIView {
@@ -20,6 +20,7 @@ extension UIView {
 
 }
 
+@MainActor
 class SnapTests: FBSnapshotTestCase {
 
     let testScale: CGFloat = 2
@@ -37,7 +38,7 @@ class SnapTests: FBSnapshotTestCase {
     var githubImage: UIImage {
         return UIImage(
             named: "octoface",
-            in: Bundle(for: type(of: self)),
+            in: Bundle.module,
             compatibleWith: nil
             )!.withRenderingMode(.alwaysTemplate)
     }
@@ -47,6 +48,10 @@ class SnapTests: FBSnapshotTestCase {
 //        recordMode = true
         sizeCache.clear()
         bitmapCache.clear()
+        bundleResourcePath = URL(fileURLWithPath: "\(#filePath)", isDirectory: false)
+            .deletingLastPathComponent()
+            .path
+        folderName = "Tests.SnapTests"
     }
 
     func test_lorem_100() {

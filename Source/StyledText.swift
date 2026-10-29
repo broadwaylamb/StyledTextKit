@@ -11,7 +11,7 @@ import UIKit
 
 public class StyledText: Hashable, Equatable {
 
-    public struct ImageFitOptions: OptionSet {
+    public struct ImageFitOptions: OptionSet, Sendable {
         public let rawValue: Int
 
         public init(rawValue: Int) {

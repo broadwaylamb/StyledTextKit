@@ -6,13 +6,13 @@
 //  Copyright © 2017 Ryan Nystrom. All rights reserved.
 //
 
-import Foundation
+import UIKit
 
 public protocol LRUCachable {
     var cachedSize: Int { get }
 }
 
-public final class LRUCache<Key: Hashable & Equatable, Value: LRUCachable> {
+public final class LRUCache<Key: Hashable & Equatable, Value: LRUCachable>: @unchecked Sendable {
 
     internal class Node {
 

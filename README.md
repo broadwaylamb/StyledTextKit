@@ -11,14 +11,6 @@
 - Cache rendered text bitmaps for improved performance
 - Custom attribute interaction handling (link taps, etc)
 
-## Installation
-
-Just add `StyledTextKit` to your Podfile and install. Done!
-
-```ruby
-pod 'StyledTextKit'
-```
-
 ## Usage
 
 ### Building `NSAttributedString`s

@@ -8,7 +8,7 @@
 
 import UIKit
 
-public final class StyledTextRenderer {
+public final class StyledTextRenderer: @unchecked Sendable {
 
     internal let layoutManager: NSLayoutManager
     internal let textContainer: NSTextContainer
@@ -43,9 +43,9 @@ public final class StyledTextRenderer {
         inset: UIEdgeInsets = .zero,
         backgroundColor: UIColor? = nil,
         layoutManager: NSLayoutManager = NSLayoutManager(),
-        scale: CGFloat = StyledTextScreenScale,
+        scale: CGFloat,
         maximumNumberOfLines: Int = 0
-        ) {
+    ) {
         self.init(
             string: string,
             contentSizeCategory: contentSizeCategory,
@@ -56,6 +56,27 @@ public final class StyledTextRenderer {
             maximumNumberOfLines: maximumNumberOfLines,
             sizeCache: nil,
             bitmapCache: nil
+        )
+    }
+
+    @MainActor
+    @available(iOS, introduced: 2.0, deprecated: 26.0, message: "Pass scale explicitly")
+    public convenience init(
+        string: StyledTextString,
+        contentSizeCategory: UIContentSizeCategory,
+        inset: UIEdgeInsets = .zero,
+        backgroundColor: UIColor? = nil,
+        layoutManager: NSLayoutManager = NSLayoutManager(),
+        maximumNumberOfLines: Int = 0
+    ) {
+        self.init(
+            string: string,
+            contentSizeCategory: contentSizeCategory,
+            inset: inset,
+            backgroundColor: backgroundColor,
+            layoutManager: layoutManager,
+            scale: StyledTextScreenScale,
+            maximumNumberOfLines: maximumNumberOfLines,
         )
     }
 
