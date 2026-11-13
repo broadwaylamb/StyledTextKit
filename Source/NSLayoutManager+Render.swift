@@ -24,18 +24,18 @@ internal extension NSLayoutManager {
         ) -> CGImage? {
         textContainer.size = size
 
-        UIGraphicsBeginImageContextWithOptions(size, backgroundColor != nil, scale)
-        defer { UIGraphicsEndImageContext() }
-
-        if let backgroundColor = backgroundColor {
-            backgroundColor.setFill()
-            UIBezierPath(rect: CGRect(origin: .zero, size: size)).fill()
-        }
-
-        let range = glyphRange(for: textContainer)
-        drawBackground(forGlyphRange: range, at: .zero)
-        drawGlyphs(forGlyphRange: range, at: .zero)
-        return UIGraphicsGetImageFromCurrentImageContext()?.cgImage
+        let format = UIGraphicsImageRendererFormat()
+        format.scale = scale
+        format.opaque = backgroundColor != nil
+        let renderer = UIGraphicsImageRenderer(size: size, format: format)
+        return renderer.image { context in
+            if let backgroundColor = backgroundColor {
+                backgroundColor.setFill()
+                context.fill(CGRect(origin: .zero, size: size))
+            }
+            let range = glyphRange(for: textContainer)
+            drawBackground(forGlyphRange: range, at: .zero)
+            drawGlyphs(forGlyphRange: range, at: .zero)
+        }.cgImage
     }
-
 }
