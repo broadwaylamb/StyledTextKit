@@ -5,7 +5,7 @@ import PackageDescription
 let package = Package(
     name: "StyledTextKit",
     platforms: [
-        .iOS(.v12),
+        .iOS(.v15),
     ],
     products: [
         .library(name: "StyledTextKit", targets: ["StyledTextKit"]),

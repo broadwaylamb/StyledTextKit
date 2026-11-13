@@ -34,14 +34,8 @@ public struct TextStyle: Hashable, Equatable, @unchecked Sendable {
     }
 
     public func font(contentSizeCategory: UIContentSizeCategory) -> UIFont {
-        let calculatedSize: CGFloat
-
-        if #available(iOS 11.0, *) {
-            let metrics = UIFontMetrics(forTextStyle: scalingTextStyle)
-            calculatedSize = metrics.scaledValue(for: size, compatibleWith: UITraitCollection(preferredContentSizeCategory: contentSizeCategory))
-        } else {
-            calculatedSize = size * contentSizeCategory.approximateScaleFactor(forTextStyle: scalingTextStyle)
-        }
+        let metrics = UIFontMetrics(forTextStyle: scalingTextStyle)
+        let calculatedSize = metrics.scaledValue(for: size, compatibleWith: UITraitCollection(preferredContentSizeCategory: contentSizeCategory))
 
         let preferredSize = min(max(calculatedSize, minSize), maxSize)
 

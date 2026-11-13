@@ -106,7 +106,7 @@ public final class StyledTextRenderer: @unchecked Sendable {
 
         self.layoutManager = layoutManager
         layoutManager.allowsNonContiguousLayout = false
-        layoutManager.hyphenationFactor = 0
+        layoutManager.usesDefaultHyphenation = false
         layoutManager.showsInvisibleCharacters = false
         layoutManager.showsControlCharacters = false
         layoutManager.usesFontLeading = true
