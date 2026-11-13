@@ -8,6 +8,7 @@
 
 import XCTest
 import iOSSnapshotTestCase
+import UIKit
 @testable import StyledTextKit
 
 extension UIView {
@@ -18,6 +19,31 @@ extension UIView {
         return self
     }
 
+}
+
+extension Optional where Wrapped: OptionSet, Wrapped.Element == Wrapped {
+    mutating func insert(_ newValue: Wrapped) {
+        var existing = self ?? []
+        existing.insert(newValue)
+        self = .some(existing)
+    }
+}
+
+extension NSTextAttachment: @unchecked @retroactive Sendable {}
+
+extension AttributedString {
+    init(_ string: String, body: (inout AttributeContainer) -> Void) {
+        var container = AttributeContainer()
+        body(&container)
+        self.init(string, attributes: container)
+    }
+
+    init(attachment: NSTextAttachment) {
+        self.init(
+            String(UnicodeScalar(NSTextAttachment.character)!),
+            attributes: AttributeContainer.attachment(attachment),
+        )
+    }
 }
 
 @MainActor
@@ -55,7 +81,7 @@ class SnapTests: FBSnapshotTestCase {
     }
 
     func test_lorem_100() {
-        let string = StyledTextBuilder(text: lorem).build()
+        let string = AttributedString(lorem)
         let renderer = StyledTextRenderer(
             string: string,
             contentSizeCategory: .large,
@@ -71,7 +97,7 @@ class SnapTests: FBSnapshotTestCase {
     }
 
     func test_lorem_200() {
-        let string = StyledTextBuilder(text: lorem).build()
+        let string = AttributedString(lorem)
         let renderer = StyledTextRenderer(
             string: string,
             contentSizeCategory: .large,
@@ -87,7 +113,7 @@ class SnapTests: FBSnapshotTestCase {
     }
 
     func test_lorem_300() {
-        let string = StyledTextBuilder(text: lorem).build()
+        let string = AttributedString(lorem)
         let renderer = StyledTextRenderer(
             string: string,
             contentSizeCategory: .large,
@@ -103,17 +129,19 @@ class SnapTests: FBSnapshotTestCase {
     }
 
     func test_complexBuilder() {
-        let string = StyledTextBuilder(text: "Hello, ")
-            .save()
-            .add(text: "world!", traits: [.traitItalic, .traitBold])
-            .restore()
-            .add(text: " Pop back. ")
-            .save()
-            .add(styledText: StyledText(storage: .text("Tiny text. "), style: TextStyle(size: 6)))
-            .add(styledText: StyledText(storage: .text("Big text. "), style: TextStyle(size: 20)))
-            .restore()
-            .add(text: "Background color.", traits: .traitBold, attributes: [.backgroundColor: UIColor.blue, .foregroundColor: UIColor.white])
-            .build()
+        var string = AttributedString("Hello, ")
+        string += AttributedString("world!") {
+            $0.inlinePresentationIntent.insert(.emphasized)
+            $0.inlinePresentationIntent.insert(.stronglyEmphasized)
+        }
+        string += " Pop back. "
+        string += AttributedString("Tiny text. ", attributes: AttributeContainer.font(.systemFont(ofSize: 6)))
+        string += AttributedString("Big text. ", attributes: AttributeContainer.font(.systemFont(ofSize: 20)))
+        string += AttributedString("Background color.") {
+            $0.inlinePresentationIntent.insert(.stronglyEmphasized)
+            $0.backgroundColor = UIColor.blue
+            $0.foregroundColor = UIColor.white
+        }
         let renderer = StyledTextRenderer(
             string: string,
             contentSizeCategory: .large,
@@ -129,7 +157,7 @@ class SnapTests: FBSnapshotTestCase {
     }
 
     func test_clearBackground() {
-        let string = StyledTextBuilder(text: lorem).build()
+        let string = AttributedString(lorem)
         let renderer = StyledTextRenderer(string: string, contentSizeCategory: .large, scale: testScale)
         let view = UIView()
         view.backgroundColor = .blue
@@ -137,7 +165,7 @@ class SnapTests: FBSnapshotTestCase {
     }
     
     func test_maxNumberOfLinesUnlimited() {
-        let string = StyledTextBuilder(text: lorem).build()
+        let string = AttributedString(lorem)
         let renderer = StyledTextRenderer(
             string: string,
             contentSizeCategory: .large,
@@ -153,49 +181,7 @@ class SnapTests: FBSnapshotTestCase {
     }
     
     func test_maxNumberOfLinesLimited() {
-        let string = StyledTextBuilder(text: lorem).build()
-        let renderer = StyledTextRenderer(
-            string: string,
-            contentSizeCategory: .large,
-            inset: .zero,
-            backgroundColor: .white,
-            layoutManager: NSLayoutManager(),
-            scale: testScale,
-            maximumNumberOfLines: 2,
-            sizeCache: sizeCache,
-            bitmapCache: bitmapCache
-        )
-        FBSnapshotVerifyView(UIView().mount(width: 300, renderer: renderer))
-    }
-
-    func test_addingImageWithTint_withBaseOptions() {
-        let string = StyledTextBuilder(text: "Hello ")
-            .save()
-            .add(image: githubImage, attributes: [.foregroundColor: UIColor.green])
-            .restore()
-            .add(text: " world!")
-            .build()
-        let renderer = StyledTextRenderer(
-            string: string,
-            contentSizeCategory: .large,
-            inset: .zero,
-            backgroundColor: .white,
-            layoutManager: NSLayoutManager(),
-            scale: testScale,
-            maximumNumberOfLines: 2,
-            sizeCache: sizeCache,
-            bitmapCache: bitmapCache
-        )
-        FBSnapshotVerifyView(UIView().mount(width: 300, renderer: renderer))
-    }
-
-    func test_addingImageWithTint_withCenter() {
-        let string = StyledTextBuilder(text: "Hello ")
-            .save()
-            .add(image: githubImage, options: [.center], attributes: [.foregroundColor: UIColor.green])
-            .restore()
-            .add(text: " world!")
-            .build()
+        let string = AttributedString(lorem)
         let renderer = StyledTextRenderer(
             string: string,
             contentSizeCategory: .large,
@@ -211,12 +197,11 @@ class SnapTests: FBSnapshotTestCase {
     }
 
     func test_addingImageWithTint_withNoOptions() {
-        let string = StyledTextBuilder(text: "Hello ")
-            .save()
-            .add(image: githubImage, options: [], attributes: [.foregroundColor: UIColor.green])
-            .restore()
-            .add(text: " world!")
-            .build()
+        var string = AttributedString("Hello ")
+        let attachment = NSTextAttachment(image: githubImage)
+        string += AttributedString(attachment: attachment)
+            .mergingAttributes(AttributeContainer.foregroundColor(UIColor.green))
+        string += " world!"
         let renderer = StyledTextRenderer(
             string: string,
             contentSizeCategory: .large,
@@ -230,5 +215,4 @@ class SnapTests: FBSnapshotTestCase {
         )
         FBSnapshotVerifyView(UIView().mount(width: 300, renderer: renderer))
     }
-
 }

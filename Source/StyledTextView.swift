@@ -205,7 +205,7 @@ open class StyledTextView: UIView {
         self.renderer = renderer
         layer.contentsScale = renderer.scale
         reposition(for: width)
-        accessibilityLabel = renderer.string.allText
+        accessibilityLabel = String(renderer.string.characters)
     }
 
     open func reposition(for width: CGFloat) {

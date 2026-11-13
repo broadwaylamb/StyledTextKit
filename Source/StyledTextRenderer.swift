@@ -15,7 +15,7 @@ public final class StyledTextRenderer: @unchecked Sendable {
     
     public let scale: CGFloat
     public let inset: UIEdgeInsets
-    public let string: StyledTextString
+    public let string: AttributedString
     public let backgroundColor: UIColor?
 
     private var map = [UIContentSizeCategory: NSTextStorage]()
@@ -38,7 +38,7 @@ public final class StyledTextRenderer: @unchecked Sendable {
     internal let bitmapCache: LRUCache<StyledTextRenderCacheKey, CGImage>
 
     public convenience init(
-        string: StyledTextString,
+        string: AttributedString,
         contentSizeCategory: UIContentSizeCategory,
         inset: UIEdgeInsets = .zero,
         backgroundColor: UIColor? = nil,
@@ -59,29 +59,8 @@ public final class StyledTextRenderer: @unchecked Sendable {
         )
     }
 
-    @MainActor
-    @available(iOS, introduced: 2.0, deprecated: 26.0, message: "Pass scale explicitly")
-    public convenience init(
-        string: StyledTextString,
-        contentSizeCategory: UIContentSizeCategory,
-        inset: UIEdgeInsets = .zero,
-        backgroundColor: UIColor? = nil,
-        layoutManager: NSLayoutManager = NSLayoutManager(),
-        maximumNumberOfLines: Int = 0
-    ) {
-        self.init(
-            string: string,
-            contentSizeCategory: contentSizeCategory,
-            inset: inset,
-            backgroundColor: backgroundColor,
-            layoutManager: layoutManager,
-            scale: StyledTextScreenScale,
-            maximumNumberOfLines: maximumNumberOfLines,
-        )
-    }
-
     internal init(
-        string: StyledTextString,
+        string: AttributedString,
         contentSizeCategory: UIContentSizeCategory,
         inset: UIEdgeInsets,
         backgroundColor: UIColor?,
@@ -117,7 +96,7 @@ public final class StyledTextRenderer: @unchecked Sendable {
         if let storage = map[contentSizeCategory] {
             return storage
         }
-        let storage = NSTextStorage(attributedString: string.render(contentSizeCategory: contentSizeCategory))
+        let storage = NSTextStorage(string)
         storage.addLayoutManager(layoutManager)
         map[contentSizeCategory] = storage
         return storage
